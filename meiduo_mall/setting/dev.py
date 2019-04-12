@@ -27,7 +27,7 @@ SECRET_KEY = 'd+j!3d*(edc14(y2_qs5o7!w(@rid9&li9z9%lk9h+c_^&2#%^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.meiduo.site']
 
 
 # Application definition
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'verifycations.apps.VerifycationsConfig',
     'contents.apps.ContentsConfig',
+    'oauth.apps.OauthConfig',
+    'goods.apps.GoodsConfig',
 
 ]
 
@@ -207,3 +209,7 @@ LOGGING = {
 AUTH_USER_MODEL = 'user.User'
 """自定认证登陆（多账号登陆模块）"""
 AUTHENTICATION_BACKENDS = ['meiduo_mall.utils.authenticate.MeiduoModelBackend']
+'QQ登陆'
+QQ_CLIENT_ID = '101518219'
+QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8000/oauth_callback'

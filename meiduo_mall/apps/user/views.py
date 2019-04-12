@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
+from meiduo_mall.utils.login import LoginRequiredMixin
 from meiduo_mall.utils.response_code import RETCODE
 from user.models import User
 
@@ -181,6 +182,18 @@ class LogoutView(View):
         return response
 
 
-class UserInfoView(View):
+class UserCenterInfoView(LoginRequiredMixin,View):
     def get(self,request):
         return render(request,'user_center_info.html')
+
+# class UserCenterInfoView(View):
+#     def get(self, request):
+#         if request.user.is_authenticated:
+#
+#             return render(request, 'user_center_info.html')
+#         else:
+#             return redirect(reverse('user:login'))
+
+
+
+

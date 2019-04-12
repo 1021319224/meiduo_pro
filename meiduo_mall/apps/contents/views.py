@@ -7,4 +7,9 @@ from django.views import View
 class IndexView(View):
     """首页显示"""
     def get(self, request):
-         return render(request, 'index.html')
+        """提供首页广告界面"""
+        context = {
+            'categories':[],
+            'contents':[]
+        }
+        return render(request,'index.html')

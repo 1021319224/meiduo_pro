@@ -24,6 +24,7 @@ var vm = new Vue({
         // 请求浏览历史记录
         this.browse_histories();
     },
+
     methods: {
         // 检查email格式
         check_email(){
