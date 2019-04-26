@@ -16,7 +16,7 @@ class ImageCodeView(View):
     def get(self, request, uuid):
 
         text, code, image = captcha.generate_captcha()
-        print('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii', uuid)
+        print(uuid)
         redis_cli = get_redis_connection('image_code')
         redis_cli.setex(uuid, constants.IMAGE_CODE_EXPIRES, code)
         return HttpResponse(image, content_type='image/png')
@@ -29,7 +29,7 @@ class SMSCodeView(View):
         print('===============',request.GET)
 
         uuid = request.GET.get('image_code_id')
-        print('pppppppppppppppppppppppppppppppp', uuid)
+        print(uuid)
         # 校验参数
         if not all([image_code_client, uuid]):
             return JsonResponse({'code':RETCODE.NECESSARYPARAMERR,'errmsg':'缺少必要参数'})
@@ -46,7 +46,6 @@ class SMSCodeView(View):
         # 提取图形验证码
         redis_cli=get_redis_connection('image_code')
         image_code_server = redis_cli.get(uuid)
-        print('kkkkkkkkkkkkkkkkkkkkkkkkk',image_code_server)
         if image_code_server is None:
             # 验证码过期或者不存在
             # return http.JsonResponse({'code':RETCODE.IMAGECODEERR, 'errmsg':'图形验证码失效'})
@@ -59,7 +58,7 @@ class SMSCodeView(View):
 
         # 生成短信验证码
         sms_code = '%06d' %random.randint(0, 999999)
-        print("=============", sms_code)
+        print(sms_code)
 
         # 优化使用管道
         redis_pl = redis_conn.pipeline()

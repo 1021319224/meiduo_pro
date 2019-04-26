@@ -15,8 +15,8 @@
 		<div class="header">
 			<div class="welcome fl">欢迎来到美多商城!</div>
 			<div class="fr">
-				<div class="login_info fl">
-					欢迎您：<em>张 山</em>
+				<div v-if="username" class="login_info fl">
+					欢迎您：<em>[[username]]</em>
 				</div>
 				<div class="login_btn fl">
 					<a href="../templates/login.html">登录</a>

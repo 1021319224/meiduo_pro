@@ -12,6 +12,7 @@ def dumps(json,expires):
     serializer = TimedJSONWebSignatureSerializer(settings.SECRET_KEY,expires_in=expires)
     json_str = serializer.dumps(json).decode()
     return json_str
+    print('666666666666666',json_str)
 
 def loads(json_str,expires):
     """
@@ -23,6 +24,7 @@ def loads(json_str,expires):
     serializer = TimedJSONWebSignatureSerializer(settings.SECRET_KEY,expires_in=expires)
     try:
         json = serializer.loads(json_str)
+        print("66666666666666666",json)
     except:
         # 如果字符串被修改过，或超期，会抛出异常
         return None

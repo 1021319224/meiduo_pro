@@ -1,3 +1,4 @@
+import json
 import re
 from django import http
 from django.contrib.auth import login, authenticate, logout
@@ -164,7 +165,7 @@ class LoginView(View):
         # 响应注册结果
         response = redirect(reverse('contents:index'))
         response.set_cookie('username',user.username, max_age=3600*24*15)
-        print(user.username)
+
 
         return response
 
@@ -186,6 +187,24 @@ class UserCenterInfoView(LoginRequiredMixin,View):
     def get(self,request):
         return render(request,'user_center_info.html')
 
+class EmailView(LoginRequiredMixin,View):
+    def put(self,request):
+        # 接受
+        json_dict = json.loads(request.body.decode())
+        email = json_dict.get('email')
+        # 验证
+        if not all([email]):
+            return http.JsonResponse({'code': RETCODE.EMAILERR, 'errmsg': "邮箱错误"})
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            return http.JsonResponse({'code': RETCODE.EMAILERR, 'errmsg': "邮箱格式错误"})
+        # 处理
+        user = request.user
+        user.email = email
+        user.save()
+        # 响应
+        return http.JsonResponse({'code':RETCODE.OK,'errmsg':"OK"})
+
+
 # class UserCenterInfoView(View):
 #     def get(self, request):
 #         if request.user.is_authenticated:
@@ -193,6 +212,8 @@ class UserCenterInfoView(LoginRequiredMixin,View):
 #             return render(request, 'user_center_info.html')
 #         else:
 #             return redirect(reverse('user:login'))
+
+
 
 
 
