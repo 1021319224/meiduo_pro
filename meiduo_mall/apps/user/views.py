@@ -1,13 +1,17 @@
 import json
 import re
 from django import http
+from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
-
+from celery_tasks.email.tasks import send_verify_email
+from meiduo_mall.utils import meiduo_signature
 from meiduo_mall.utils.login import LoginRequiredMixin
 from meiduo_mall.utils.response_code import RETCODE
+from user import constants
 from user.models import User
 
 
@@ -182,8 +186,17 @@ class LogoutView(View):
 
         return response
 
-
+# class UserCenterInfoView(View):
+#     def get(self, request):
+#         if request.user.is_authenticated:
+#
+#             return render(request, 'user_center_info.html')
+#         else:
+#             return redirect(reverse('user:login'))
 class UserCenterInfoView(LoginRequiredMixin,View):
+    """
+    用户中心
+    """
     def get(self,request):
         return render(request,'user_center_info.html')
 
@@ -201,17 +214,56 @@ class EmailView(LoginRequiredMixin,View):
         user = request.user
         user.email = email
         user.save()
+
+
+
+        # 生成激活链接地址
+        token = meiduo_signature.dumps({'user_id':user.id},constants.EMAIL_ACTIVE_EXPIRES)
+        verify_url = settings.EMAIL_VERIFY_URL + '?token=' + token
+
+        # subject = "美多商城邮箱验证"
+        # from_email = settings.EMAIL_FROM
+        # html_message = '<p>尊敬的用户您好！</p><p>感谢您使用美多商城。</p><p>您的邮箱为：%s 。请点击此链接激活您的邮箱：' \
+        #                '</p><p><a href="%s">%s</a></p>' % (email, verify_url, verify_url)
+        # send_mail(subject, '', from_email, [email], html_message=html_message)
+
+
+
+        # 异步发送验证邮件
+        send_verify_email.delay(to_email=email,verify_url=verify_url)
         # 响应
         return http.JsonResponse({'code':RETCODE.OK,'errmsg':"OK"})
 
+class EmailActiveView():
 
-# class UserCenterInfoView(View):
-#     def get(self, request):
-#         if request.user.is_authenticated:
-#
-#             return render(request, 'user_center_info.html')
-#         else:
-#             return redirect(reverse('user:login'))
+    def get(self,request):
+
+        # 接受
+        token = request.GET.get('token')
+        # 验证
+        if not all([token]):
+            return http.HttpResponseForbidden('参数无效')
+        # 解密 获取用户编号
+        json_dict = meiduo_signature.loads(token,constants.EMAIL_ACTIVE_EXPIRES)
+        if json_dict is None:
+            return http.HttpResponseForbidden('激活信息无效')
+        user_id = json_dict.get('user_id')
+        # 处理
+        try:
+            user = User.objects.get(pk = user_id)
+        except:
+            return http.HttpResponseForbidden('用户无效')
+        user.email_active = True
+        user.save()
+
+        # 返回
+        return redirect('/info/')
+
+    class AddressView(LoginRequiredMixin,View):
+        def get(self,request):
+            pass
+
+
 
 
 

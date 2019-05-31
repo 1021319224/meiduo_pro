@@ -65,15 +65,25 @@
 					<ul class="user_info_list">
 						<li><span>用户名：</span>{{ request.user.username }}</li>
 						<li><span>联系方式：</span>{{ request.user.mobile }}</li>
-						<li>
-                            <span>Email：</span>{{ request.user.email }}
-	                    <div v-if="set_email">
+                        <li>
+                        <span>Email：</span>
+                        <div v-if="set_email">
                             <input v-model="email" @blur="check_email" type="email" name="email" class="email">
                             <input @click="save_email" type="button" value="保 存">
                             <input @click="cancel_email" type="reset" value="取 消">
                             <div v-show="error_email" class="error_email_tip">邮箱格式错误</div>
                         </div>
-	                	</li>			
+                        <div v-else>
+                            <input v-model="email" type="email" name="email" class="email" readonly>
+                            <div v-if="email_active">
+                                已验证
+                            </div>
+                            <div v-else>
+                                待验证<input @click="save_email" :disabled="send_email_btn_disabled" type="button"
+                                          :value="send_email_tip">
+                            </div>
+                        </div>
+                        </li>
 					</ul>
 				</div>
 				
